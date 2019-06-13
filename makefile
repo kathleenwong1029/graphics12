@@ -3,6 +3,11 @@ CFLAGS= -g
 LDFLAGS= -lm
 CC= gcc
 
+lamp: all
+	./mdl lamp.mdl
+
+all: parser
+
 run: parser simple_anim.mdl
 	./mdl simple_anim.mdl
 

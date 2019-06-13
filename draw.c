@@ -421,7 +421,7 @@ struct matrix * generate_sphere(double cx, double cy, double cz,
 
   should call generate_torus to create the necessary points
   ====================*/
-void add_torus( struct matrix * edges, 
+void add_torus( struct matrix * edges,
                 double cx, double cy, double cz,
                 double r1, double r2, int step ) {
 
@@ -559,10 +559,10 @@ of type specified in type (see matrix.h for curve type constants)
 to the matrix edges
 ====================*/
 void add_curve( struct matrix *edges,
-                double x0, double y0, 
-                double x1, double y1, 
-                double x2, double y2, 
-                double x3, double y3, 
+                double x0, double y0,
+                double x1, double y1,
+                double x2, double y2,
+                double x3, double y3,
                 int step, int type ) {
   double t, x, y;
   int i;
@@ -571,11 +571,11 @@ void add_curve( struct matrix *edges,
 
   xcoefs = generate_curve_coefs(x0, x1, x2, x3, type);
   ycoefs = generate_curve_coefs(y0, y1, y2, y3, type);
-  
+
   /* print_matrix(xcoefs); */
   /* printf("\n"); */
   /* print_matrix(ycoefs); */
-  
+
   for (i=1; i<=step; i++) {
     t = (double)i/step;
 
@@ -599,8 +599,8 @@ void add_curve( struct matrix *edges,
 Inputs:   struct matrix * points
          int x
          int y
-         int z 
-Returns: 
+         int z
+Returns:
 adds point (x, y, z) to points and increment points.lastcol
 if points is full, should call grow on points
 ====================*/
@@ -608,7 +608,7 @@ void add_point( struct matrix * points, double x, double y, double z) {
 
   if ( points->lastcol == points->cols )
     grow_matrix( points, points->lastcol + 100 );
-  
+
   points->m[0][ points->lastcol ] = x;
   points->m[1][ points->lastcol ] = y;
   points->m[2][ points->lastcol ] = z;
@@ -619,12 +619,12 @@ void add_point( struct matrix * points, double x, double y, double z) {
 /*======== void add_edge() ==========
 Inputs:   struct matrix * points
           int x0, int y0, int z0, int x1, int y1, int z1
-Returns: 
+Returns:
 add the line connecting (x0, y0, z0) to (x1, y1, z1) to points
 should use add_point
 ====================*/
-void add_edge( struct matrix * points, 
-	       double x0, double y0, double z0, 
+void add_edge( struct matrix * points,
+	       double x0, double y0, double z0,
 	       double x1, double y1, double z1) {
   add_point( points, x0, y0, z0 );
   add_point( points, x1, y1, z1 );
@@ -633,8 +633,8 @@ void add_edge( struct matrix * points,
 /*======== void draw_lines() ==========
 Inputs:   struct matrix * points
          screen s
-         color c 
-Returns: 
+         color c
+Returns:
 Go through points 2 at a time and call draw_line to add that line
 to the screen
 ====================*/
@@ -752,3 +752,49 @@ void draw_line(int x0, int y0, double z0,
   } //end drawing loop
   plot( s, zb, c, x1, y1, z );
 } //end draw_line
+
+struct matrix * parse_mesh(char * filename){
+  FILE * f;
+  int num_vertices = 0, num_faces = 0, i, num_args, vert;
+  char line[512];
+  char ve;
+  struct matrix * polygons = new_matrix(4, 4);
+
+  f = fopen(filename, "r");
+  while (fgets(line, sizeof(line), f)){
+    if (!strncmp(line, "v", 1))
+      num_vertices++;
+    if (!strncmp(line, "f", 1))
+      num_faces++;
+  }
+  fclose(f);
+
+  double vertices[num_vertices + 1][3];
+  vert = 1;
+
+  f = fopen(filename, "r");
+  while (fgets(line, sizeof(line), f)){
+    if (line[strlen(line) - 1] == '\n')
+      line[strlen(line) - 1] = '\0';
+    if (!strncmp(line, "v", 1)){
+      sscanf(line, "%c %lf %lf %lf", &ve, &vertices[vert][0], &vertices[vert][1], &vertices[vert][2]);
+      vert++;
+    }
+    if (!strncmp(line, "f", 1)){
+      int args[100];
+      num_args = 0;
+      char * liner = &line[0];
+      while (liner){
+	         args[num_args] = atoi(strsep(&liner, " "));
+	         num_args++;
+      }
+      for (i = 2; i < num_args - 1; i++){
+      	add_polygon(polygons, vertices[args[1]][0], vertices[args[1]][1], vertices[args[1]][2],
+      		    vertices[args[i]][0], vertices[args[i]][1], vertices[args[i]][2],
+      		    vertices[args[i + 1]][0], vertices[args[i + 1]][1], vertices[args[i + 1]][2]);
+      }
+    }
+  }
+  fclose(f);
+  return polygons;
+}

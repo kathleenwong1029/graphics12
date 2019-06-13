@@ -324,6 +324,19 @@ void my_main() {
         draw_lines(tmp, t, zb, g);
         tmp->lastcol = 0;
         break;
+      case MESH:
+        free_matrix(tmp);
+        tmp = parse_mesh(op[i].op.mesh.name);
+        matrix_mult(peek(systems), tmp);
+        draw_polygons(tmp, t, zb,
+          view, light, ambient, reflect);
+        tmp->lastcol = 0;
+        break;
+      case SET:
+        printf("Set: %s %6.2f\n",
+         op[i].op.set.p->name,
+         op[i].op.set.p->s.value);
+        break;
       case MOVE:
         xval = op[i].op.move.d[0];
         yval = op[i].op.move.d[1];
@@ -373,7 +386,7 @@ void my_main() {
           tmp = make_rotY( theta );
         else
           tmp = make_rotZ( theta );
-          
+
         matrix_mult(peek(systems), tmp);
         copy_matrix(tmp, peek(systems));
         tmp->lastcol = 0;
