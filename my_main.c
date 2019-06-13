@@ -149,6 +149,23 @@ struct vary_node ** second_pass() {
   return knobs;
 }
 
+/*======== void print_knobs() ==========
+Inputs:
+Returns:
+Goes through symtab and display all the knobs and their
+currnt values
+====================*/
+void print_knobs() {
+  int i;
+  printf( "ID\tNAME\t\tTYPE\t\tVALUE\n" );
+  for ( i=0; i < lastsym; i++ ){
+    if ( symtab[i].type == SYM_VALUE ){
+      printf( "%d\t%s\t\t", i, symtab[i].name );
+      printf( "SYM_VALUE\t");
+      printf( "%6.2f\n", symtab[i].s.value);
+    }
+  }
+}
 
 void my_main() {
 
@@ -325,11 +342,9 @@ void my_main() {
         tmp->lastcol = 0;
         break;
       case MESH:
-        free_matrix(tmp);
-        tmp = parse_mesh(op[i].op.mesh.name);
+        add_mesh(tmp, op[i].op.mesh.name);
         matrix_mult(peek(systems), tmp);
-        draw_polygons(tmp, t, zb,
-          view, light, ambient, reflect);
+        draw_polygons(tmp, t, zb, view, light, ambient, reflect);
         tmp->lastcol = 0;
         break;
       case SET:

@@ -2,6 +2,7 @@ frames 10
 basename lamp
 push
 move 250 250 0
+scale 20 20 20
 mesh :lamp.obj
 pop
 save

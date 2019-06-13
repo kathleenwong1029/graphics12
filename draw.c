@@ -753,48 +753,102 @@ void draw_line(int x0, int y0, double z0,
   plot( s, zb, c, x1, y1, z );
 } //end draw_line
 
-struct matrix * parse_mesh(char * filename){
-  FILE * f;
-  int num_vertices = 0, num_faces = 0, i, num_args, vert;
-  char line[512];
-  char ve;
-  struct matrix * polygons = new_matrix(4, 4);
+int split (const char *str, char c, char ***arr){
+    int count = 1;
+    int token_len = 1;
+    int i = 0;
+    char *p;
+    char *t;
 
-  f = fopen(filename, "r");
-  while (fgets(line, sizeof(line), f)){
-    if (!strncmp(line, "v", 1))
-      num_vertices++;
-    if (!strncmp(line, "f", 1))
-      num_faces++;
+    p = (char *)str;
+    while (*p != '\0'){
+        if (*p == c)
+            count++;
+        p++;
+    }
+
+    *arr = (char**) malloc(sizeof(char*) * count);
+    if (*arr == NULL)
+        exit(1);
+
+    p = (char *)str;
+    while (*p != '\0'){
+        if (*p == c){
+            (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
+            if ((*arr)[i] == NULL)
+                exit(1);
+
+            token_len = 0;
+            i++;
+        }
+        p++;
+        token_len++;
+    }
+    (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
+    if ((*arr)[i] == NULL)
+        exit(1);
+
+    i = 0;
+    p = (char *)str;
+    t = ((*arr)[i]);
+    while (*p != '\0'){
+        if (*p != c && *p != '\0'){
+            *t = *p;
+            t++;
+        }
+        else{
+            *t = '\0';
+            i++;
+            t = ((*arr)[i]);
+        }
+        p++;
+    }
+    return count;
+}
+
+void print_args(char ** args, int len){
+  int i;
+  printf("%d : [", len);
+  for(i=0; i < len; i++){
+    printf("%s ", args[i]);
+  }
+  printf("]\n");
+}
+
+/*======== void add_mesh() ==========
+  Inputs: struct matrix *points
+          char * name
+  Returns:
+  Parses .obj file and inputs vectors into polygon matrix
+  ====================*/
+void add_mesh(struct matrix * points, char * name){
+  FILE *f = fopen(name, "r");
+  struct matrix * vert = new_matrix(4, 100);
+  char line[256];
+  double x, y, z;
+  char ** args;
+  int i, size, vert0, vert1, vert2;
+
+  add_point(vert, 0, 0, 0);
+  while(fgets(line, sizeof(line), f) != NULL){
+    line[strlen(line)-1]='\0';
+    if(line[0] == 'v' && line[1] == ' '){
+      sscanf(line, "v %lf %lf %lf", &x, &y, &z);
+      add_point(vert, x, y, z);
+    }
+    if(line[0] == 'f'){
+      size = split(line, ' ', &args);
+      vert0 = atoi(args[1]);
+      for(i=2; i < size-1; i++){
+        vert1 = atoi(args[i]);
+        vert2 = atoi(args[i+1]);
+        add_polygon(points, vert->m[0][vert0], vert->m[1][vert0], vert->m[2][vert0],
+                              vert->m[0][vert1], vert->m[1][vert1], vert->m[2][vert1],
+                              vert->m[0][vert2], vert->m[1][vert2], vert->m[2][vert2]);
+      }
+    }
   }
   fclose(f);
+  free_matrix(vert);
 
-  double vertices[num_vertices + 1][3];
-  vert = 1;
-
-  f = fopen(filename, "r");
-  while (fgets(line, sizeof(line), f)){
-    if (line[strlen(line) - 1] == '\n')
-      line[strlen(line) - 1] = '\0';
-    if (!strncmp(line, "v", 1)){
-      sscanf(line, "%c %lf %lf %lf", &ve, &vertices[vert][0], &vertices[vert][1], &vertices[vert][2]);
-      vert++;
-    }
-    if (!strncmp(line, "f", 1)){
-      int args[100];
-      num_args = 0;
-      char * liner = &line[0];
-      while (liner){
-	         args[num_args] = atoi(strsep(&liner, " "));
-	         num_args++;
-      }
-      for (i = 2; i < num_args - 1; i++){
-      	add_polygon(polygons, vertices[args[1]][0], vertices[args[1]][1], vertices[args[1]][2],
-      		    vertices[args[i]][0], vertices[args[i]][1], vertices[args[i]][2],
-      		    vertices[args[i + 1]][0], vertices[args[i + 1]][1], vertices[args[i + 1]][2]);
-      }
-    }
-  }
-  fclose(f);
-  return polygons;
 }

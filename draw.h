@@ -54,6 +54,8 @@ void draw_line(int x0, int y0, double z0,
                int x1, int y1, double z1,
                screen s, zbuffer zb, color c);
 
-struct matrix * parse_mesh(char * filename);
+int split (const char *str, char c, char ***arr);
+void add_mesh(struct matrix * points, char * name);
+void print_args(char ** args, int len);
 
 #endif
