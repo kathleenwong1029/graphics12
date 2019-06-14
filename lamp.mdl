@@ -1,30 +1,31 @@
-frames 50
+frames 100
 basename lamp
 
 push
-move 220 250 0
+move 210 250 0
 scale 10 10 10
 rotate y 360 spinny
 mesh :lamp.obj
 pop
 
 push
-move 160 200 0
+move 150 200 0
 scale 15 15 15
 rotate y 360 spinny
 mesh :lamp.obj
 pop
 
 push
-move 80 150 0
+move 70 150 0
 scale 20 20 20
 rotate y 360 spinny
 mesh :lamp.obj
 pop
 
 
+
 push
-move 280 250 0
+move 270 250 0
 scale 10 10 10
 rotate y 180
 rotate y 360 spinny
@@ -32,7 +33,7 @@ mesh :lamp.obj
 pop
 
 push
-move 340 200 0
+move 330 200 0
 scale 15 15 15
 rotate y 180
 rotate y 360 spinny
@@ -40,7 +41,7 @@ mesh :lamp.obj
 pop
 
 push
-move 420 150 0
+move 410 150 0
 scale 20 20 20
 rotate y 180
 rotate y 360 spinny
