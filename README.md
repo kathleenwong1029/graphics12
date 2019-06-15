@@ -1,12 +1,10 @@
 # graphics12
-## TEAM LALA
+## TEAM LALA (Period 4)
 ### Angela Li, Kathleen Wong
 ## Features To Implement : 
-
-Mesh
-
-Phong Shading
-
-Set
-
-SetKnobs
+* Mesh
+* Phong Shading
+* Set
+* SetKnobs
+## Implemented : 
+* Mesh
